@@ -64,6 +64,23 @@
     button:hover {
       background: #ff8f00;
     }
+
+    #streak {
+      font-size: 1.5rem;
+      color: #4e342e;
+      margin-top: 10px;
+    }
+
+    #fireworks {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -72,11 +89,14 @@
   <div id="clock"></div>
   <button id="new-time-btn">Neue Uhrzeit</button>
 
-  <div class="input-area">
-    <label>Stunde:<br><input type="number" id="hour-input" min="1" max="12" /></label>
-    <label>Minute:<br><input type="number" id="minute-input" min="0" max="59" step="5"/></label>
-  </div>
-  <button id="check-btn">Prüfen</button>
+  <form class="input-area" id="time-form">
+    <label>Stunde:<br><input type="number" id="hour-input" min="1" max="12" required /></label>
+    <label>Minute:<br><input type="number" id="minute-input" min="0" max="59" step="5" required /></label>
+    <button type="submit" id="check-btn">Prüfen</button>
+  </form>
+
+  <div id="streak">Richtige Antworten in Folge: 0</div>
+  <canvas id="fireworks"></canvas>
 
   <script src="clock.min.js"></script>
   <script>
@@ -102,14 +122,12 @@
         const ctx = this.ctx;
         ctx.clearRect(0, 0, 300, 300);
 
-        // Hintergrundkreis
         ctx.beginPath();
         ctx.arc(150, 150, 140, 0, 2 * Math.PI);
         ctx.fillStyle = '#fff3e0';
         ctx.fill();
         ctx.stroke();
 
-        // Zahlen
         ctx.fillStyle = '#ff4081';
         ctx.font = 'bold 18px Comic Sans MS';
         for (let i = 0; i < 12; i++) {
@@ -119,7 +137,6 @@
           ctx.fillText(i === 0 ? '12' : i.toString(), x - 10, y + 8);
         }
 
-        // Zeiger
         const hourAngle = ((this.hour % 12) + this.minute / 60) * Math.PI / 6;
         const minuteAngle = this.minute * Math.PI / 30;
 
@@ -150,6 +167,7 @@
     let currentHour = 0;
     let currentMinute = 0;
     let clock = new Clock("clock");
+    let streak = 0;
 
     function generateRandomTime() {
       currentHour = Math.floor(Math.random() * 12) + 1;
@@ -157,21 +175,78 @@
       clock.setTime(currentHour, currentMinute);
     }
 
+    function updateStreakDisplay() {
+      document.getElementById("streak").textContent = `Richtige Antworten in Folge: ${streak}`;
+    }
+
+    function showFireworks() {
+      const canvas = document.getElementById("fireworks");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      canvas.style.display = 'block';
+
+      const particles = [];
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          dx: (Math.random() - 0.5) * 8,
+          dy: (Math.random() - 0.5) * 8,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`
+        });
+      }
+
+      let count = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          p.x += p.dx;
+          p.y += p.dy;
+        });
+        count++;
+        if (count < 50) {
+          requestAnimationFrame(animate);
+        } else {
+          canvas.style.display = 'none';
+        }
+      }
+      animate();
+      alert("🎆🎉 Hurra! Du hast 5 richtige Antworten in Folge geschafft! 🎉🎆");
+    }
+
     document.getElementById("new-time-btn").addEventListener("click", generateRandomTime);
 
-    document.getElementById("check-btn").addEventListener("click", () => {
+    document.getElementById("time-form").addEventListener("submit", (e) => {
+      e.preventDefault();
       const inputHour = parseInt(document.getElementById("hour-input").value, 10);
       const inputMinute = parseInt(document.getElementById("minute-input").value, 10);
 
       if (inputHour === currentHour && inputMinute === currentMinute) {
+        streak++;
+        updateStreakDisplay();
+        if (streak === 5) {
+          showFireworks();
+          streak = 0;
+          updateStreakDisplay();
+        }
         alert("Richtig! Gut gemacht! 🎉");
+        document.getElementById("hour-input").value = '';
+        document.getElementById("minute-input").value = '';
         generateRandomTime();
       } else {
+        streak = 0;
+        updateStreakDisplay();
         alert("Leider falsch! Versuch es nochmal.");
       }
     });
 
     generateRandomTime();
+    updateStreakDisplay();
   </script>
 </body>
 </html>
