@@ -5,16 +5,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Uhr lernen</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      background: linear-gradient(to bottom, #fceabb, #f8b500);
+      padding: 20px;
+    }
+
+    h1 {
+      color: #ff4081;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+
+    #clock {
+      margin: 20px auto;
+      width: 300px;
+      height: 300px;
+      background-color: #fff3e0;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .input-area {
+      margin: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    label {
+      font-size: 1.2rem;
+      color: #4e342e;
+    }
+
+    input {
+      width: 70px;
+      font-size: 1.2rem;
+      padding: 5px;
+      border: 2px solid #ffcc80;
+      border-radius: 8px;
+      background: #fff8e1;
+    }
+
+    button {
+      font-size: 1.2rem;
+      padding: 10px 25px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      background: #ff6f00;
+      color: white;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #ff8f00;
+    }
+  </style>
 </head>
 <body>
   <h1>Wie spät ist es?</h1>
-  
+
   <div id="clock"></div>
   <button id="new-time-btn">Neue Uhrzeit</button>
 
   <div class="input-area">
-    <label>Stunde: <input type="number" id="hour-input" min="1" max="12" /></label>
-    <label>Minute: <input type="number" id="minute-input" min="0" max="59" step="5"/></label>
+    <label>Stunde:<br><input type="number" id="hour-input" min="1" max="12" /></label>
+    <label>Minute:<br><input type="number" id="minute-input" min="0" max="59" step="5"/></label>
   </div>
   <button id="check-btn">Prüfen</button>
 
