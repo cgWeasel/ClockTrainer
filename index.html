@@ -97,6 +97,7 @@
 
   <div id="streak">Richtige Antworten in Folge: 0</div>
   <canvas id="fireworks"></canvas>
+  <audio id="fireworks-sound" src="https://www.fesliyanstudios.com/play-mp3/387" preload="auto"></audio>
 
   <script src="clock.min.js"></script>
   <script>
@@ -129,31 +130,33 @@
         ctx.stroke();
 
         ctx.fillStyle = '#ff4081';
-        ctx.font = 'bold 18px Comic Sans MS';
+        ctx.font = 'bold 26px Comic Sans MS';
         for (let i = 0; i < 12; i++) {
           const angle = i * Math.PI / 6;
           const x = 150 + Math.cos(angle - Math.PI / 2) * 120;
           const y = 150 + Math.sin(angle - Math.PI / 2) * 120;
-          ctx.fillText(i === 0 ? '12' : i.toString(), x - 10, y + 8);
+          ctx.fillText(i === 0 ? '12' : i.toString(), x - 12, y + 10);
         }
 
         const hourAngle = ((this.hour % 12) + this.minute / 60) * Math.PI / 6;
         const minuteAngle = this.minute * Math.PI / 30;
 
         ctx.strokeStyle = '#3e2723';
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 12;
+        ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(150, 150);
-        ctx.lineTo(150 + 50 * Math.cos(hourAngle - Math.PI / 2),
-                   150 + 50 * Math.sin(hourAngle - Math.PI / 2));
+        ctx.lineTo(150 + 72 * Math.cos(hourAngle - Math.PI / 2),
+                   150 + 72 * Math.sin(hourAngle - Math.PI / 2));
         ctx.stroke();
 
         ctx.strokeStyle = '#ff6f00';
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(150, 150);
-        ctx.lineTo(150 + 80 * Math.cos(minuteAngle - Math.PI / 2),
-                   150 + 80 * Math.sin(minuteAngle - Math.PI / 2));
+        ctx.lineTo(150 + 115 * Math.cos(minuteAngle - Math.PI / 2),
+                   150 + 115 * Math.sin(minuteAngle - Math.PI / 2));
         ctx.stroke();
       }
 
@@ -182,40 +185,55 @@
     function showFireworks() {
       const canvas = document.getElementById("fireworks");
       const ctx = canvas.getContext("2d");
+      const sound = document.getElementById("fireworks-sound");
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       canvas.style.display = 'block';
+      sound.play();
 
-      const particles = [];
-      for (let i = 0; i < 100; i++) {
-        particles.push({
-          x: canvas.width / 2,
-          y: canvas.height / 2,
-          dx: (Math.random() - 0.5) * 8,
-          dy: (Math.random() - 0.5) * 8,
-          color: `hsl(${Math.random() * 360}, 100%, 50%)`
-        });
-      }
+      const explosions = 3;
+      let explosion = 0;
 
-      let count = 0;
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
-          ctx.fillStyle = p.color;
-          ctx.fill();
-          p.x += p.dx;
-          p.y += p.dy;
-        });
-        count++;
-        if (count < 50) {
-          requestAnimationFrame(animate);
-        } else {
-          canvas.style.display = 'none';
+      function launchExplosion() {
+        const particles = [];
+        for (let i = 0; i < 150; i++) {
+          particles.push({
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            dx: (Math.random() - 0.5) * 12,
+            dy: (Math.random() - 0.5) * 12,
+            size: Math.random() * 3 + 4,
+            color: `hsl(${Math.random() * 360}, 100%, 50%)`
+          });
         }
+
+        let count = 0;
+        function animate() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach(p => {
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            p.x += p.dx;
+            p.y += p.dy;
+          });
+          count++;
+          if (count < 60) {
+            requestAnimationFrame(animate);
+          } else {
+            explosion++;
+            if (explosion < explosions) {
+              setTimeout(launchExplosion, 300);
+            } else {
+              canvas.style.display = 'none';
+            }
+          }
+        }
+        animate();
       }
-      animate();
+
+      launchExplosion();
       alert("🎆🎉 Hurra! Du hast 5 richtige Antworten in Folge geschafft! 🎉🎆");
     }
 
@@ -223,20 +241,24 @@
 
     document.getElementById("time-form").addEventListener("submit", (e) => {
       e.preventDefault();
-      const inputHour = parseInt(document.getElementById("hour-input").value, 10);
-      const inputMinute = parseInt(document.getElementById("minute-input").value, 10);
+      const hourInput = document.getElementById("hour-input");
+      const minuteInput = document.getElementById("minute-input");
+      const inputHour = parseInt(hourInput.value, 10);
+      const inputMinute = parseInt(minuteInput.value, 10);
 
       if (inputHour === currentHour && inputMinute === currentMinute) {
         streak++;
         updateStreakDisplay();
+        hourInput.value = '';
+        minuteInput.value = '';
+        hourInput.focus();
         if (streak === 5) {
           showFireworks();
           streak = 0;
           updateStreakDisplay();
+        } else {
+          alert("Richtig! Gut gemacht! 🎉");
         }
-        alert("Richtig! Gut gemacht! 🎉");
-        document.getElementById("hour-input").value = '';
-        document.getElementById("minute-input").value = '';
         generateRandomTime();
       } else {
         streak = 0;
