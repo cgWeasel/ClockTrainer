@@ -79,6 +79,99 @@
   <button id="check-btn">Prüfen</button>
 
   <script src="clock.min.js"></script>
-  <script src="script.js"></script>
+  <script>
+    class Clock {
+      constructor(containerId) {
+        this.container = document.getElementById(containerId);
+        this.hour = 0;
+        this.minute = 0;
+        this.draw();
+      }
+
+      draw() {
+        this.container.innerHTML = '';
+        const canvas = document.createElement('canvas');
+        canvas.width = 300;
+        canvas.height = 300;
+        this.container.appendChild(canvas);
+        this.ctx = canvas.getContext('2d');
+        this.update();
+      }
+
+      update() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, 300, 300);
+
+        // Hintergrundkreis
+        ctx.beginPath();
+        ctx.arc(150, 150, 140, 0, 2 * Math.PI);
+        ctx.fillStyle = '#fff3e0';
+        ctx.fill();
+        ctx.stroke();
+
+        // Zahlen
+        ctx.fillStyle = '#ff4081';
+        ctx.font = 'bold 18px Comic Sans MS';
+        for (let i = 0; i < 12; i++) {
+          const angle = i * Math.PI / 6;
+          const x = 150 + Math.cos(angle - Math.PI / 2) * 120;
+          const y = 150 + Math.sin(angle - Math.PI / 2) * 120;
+          ctx.fillText(i === 0 ? '12' : i.toString(), x - 10, y + 8);
+        }
+
+        // Zeiger
+        const hourAngle = ((this.hour % 12) + this.minute / 60) * Math.PI / 6;
+        const minuteAngle = this.minute * Math.PI / 30;
+
+        ctx.strokeStyle = '#3e2723';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.lineTo(150 + 50 * Math.cos(hourAngle - Math.PI / 2),
+                   150 + 50 * Math.sin(hourAngle - Math.PI / 2));
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ff6f00';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.lineTo(150 + 80 * Math.cos(minuteAngle - Math.PI / 2),
+                   150 + 80 * Math.sin(minuteAngle - Math.PI / 2));
+        ctx.stroke();
+      }
+
+      setTime(hour, minute) {
+        this.hour = hour;
+        this.minute = minute;
+        this.update();
+      }
+    }
+
+    let currentHour = 0;
+    let currentMinute = 0;
+    let clock = new Clock("clock");
+
+    function generateRandomTime() {
+      currentHour = Math.floor(Math.random() * 12) + 1;
+      currentMinute = Math.floor(Math.random() * 12) * 5;
+      clock.setTime(currentHour, currentMinute);
+    }
+
+    document.getElementById("new-time-btn").addEventListener("click", generateRandomTime);
+
+    document.getElementById("check-btn").addEventListener("click", () => {
+      const inputHour = parseInt(document.getElementById("hour-input").value, 10);
+      const inputMinute = parseInt(document.getElementById("minute-input").value, 10);
+
+      if (inputHour === currentHour && inputMinute === currentMinute) {
+        alert("Richtig! Gut gemacht! 🎉");
+        generateRandomTime();
+      } else {
+        alert("Leider falsch! Versuch es nochmal.");
+      }
+    });
+
+    generateRandomTime();
+  </script>
 </body>
 </html>
