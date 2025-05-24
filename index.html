@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Uhr lernen</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Wie spät ist es?</h1>
+  
+  <div id="clock"></div>
+  <button id="new-time-btn">Neue Uhrzeit</button>
+
+  <div class="input-area">
+    <label>Stunde: <input type="number" id="hour-input" min="1" max="12" /></label>
+    <label>Minute: <input type="number" id="minute-input" min="0" max="59" step="5"/></label>
+  </div>
+  <button id="check-btn">Prüfen</button>
+
+  <script src="clock.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
